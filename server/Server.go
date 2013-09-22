@@ -23,14 +23,14 @@ import (
  )
  **/
 
-var packagesMap map[string]*model.PackageEntry
-var packagesList []model.PackageEntry
+var packagesMap map[string]model.PackageEntry
+var packageList []model.PackageEntry
 
 const defaultPackageInitAmount = 10000
 
 func StartServer(snapshotVersion string) {
-	packagesMap = make(map[string]*model.PackageEntry, defaultPackageInitAmount)
-	packagesList = make([]model.PackageEntry, defaultPackageInitAmount)
+	packagesMap = make(map[string]model.PackageEntry, defaultPackageInitAmount)
+	packageList = make([]model.PackageEntry, defaultPackageInitAmount)
 	initRegistry(snapshotVersion)
 	r := mux.NewRouter()
 	r.HandleFunc("/", packagesHandler)
@@ -47,7 +47,7 @@ func initRegistry(snapshotVersionPath string) {
 	if !doesFileExist {
 		fmt.Fprintf(os.Stderr, "ERROR:  File provided (\"%s\") for bower registry snapshot does not exist.\n", snapshotVersionPath)
 	}
-	model.InitPackages(snapshotVersionPath, &packagesMap, &packagesList)
+	model.InitPackages(snapshotVersionPath, &packagesMap, &packageList)
 }
 
 func checkFileExist(filePath string) bool {
@@ -60,7 +60,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 }
 
 func packagesHandler(response http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(response, "%v", model.PackageListToJson(&packagesList))
+	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList))
 }
 
 func specificPackageHandler(response http.ResponseWriter, request *http.Request) {
@@ -68,12 +68,12 @@ func specificPackageHandler(response http.ResponseWriter, request *http.Request)
 	packageName := vars["name"]
 	log.Printf("URL Parameter packageName=%s\n",packageName)
 	
-	packageFound := packagesMap[packageName]
+	packageFound, found := packagesMap[packageName]
 	log.Printf("Found package: %+v\n",packageFound)
 	
 	var jsonString string
-	if packageFound != nil {
-		jsonString = (*packageFound).ToJson()
+	if found {
+		jsonString = packageFound.ToJson()
 	}
 	log.Printf("Json string:\"%s\"\n",jsonString)
 	fmt.Fprintf(response, jsonString)
@@ -83,8 +83,8 @@ func specificPackageHandler(response http.ResponseWriter, request *http.Request)
 func searchHandler(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	lookup := vars["name"]
-	foundPackages := make([]model.PackageEntry, 512)
-	for _, currPackage := range packagesList {
+	foundPackages := make([]model.PackageEntry, 0)
+	for _, currPackage := range packageList {
 		if strings.Contains(currPackage.Name, lookup) {
 			foundPackages = append(foundPackages, currPackage)
 		}
