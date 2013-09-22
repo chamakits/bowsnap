@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+//	"log"
 )
 
 /**
@@ -32,6 +33,7 @@ func StartServer(snapshotVersion string, port int) {
 	packageList = make([]model.PackageEntry, defaultPackageInitAmount)
 	initRegistry(snapshotVersion)
 	r := mux.NewRouter()
+	r.Schemes("https")
 	//r.HandleFunc("/", packagesHandler)
 	r.HandleFunc("/packages", packagesHandler)
 	r.HandleFunc("/packages/{name}", specificPackageHandler)
@@ -79,11 +81,16 @@ func specificPackageHandler(response http.ResponseWriter, request *http.Request)
 func searchHandler(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	lookup := vars["name"]
-	foundPackages := make([]model.PackageEntry, 0)
+	//log.Printf("SearchHandler, name:%s\n", lookup)
+
+  	foundPackages := make([]model.PackageEntry, 0)
 	for _, currPackage := range packageList {
+//		log.Printf("Lookup:%s; currPackage:%v\n",lookup, currPackage)
+//		log.Printf("Currpackage.Name:\"%s\", Lookup:\"%s\", contains:\"%v\"\n", currPackage.Name, lookup, strings.Contains(currPackage.Name, lookup))
 		if strings.Contains(currPackage.Name, lookup) {
 			foundPackages = append(foundPackages, currPackage)
 		}
 	}
+//	log.Printf("Found size:%s\n", len(foundPackages))
 	fmt.Fprintf(response, model.PackageListToJson(&foundPackages))
 }

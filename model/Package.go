@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"io"
+	"crypto/md5"
 )
 
 type PackageEntry struct {
@@ -53,11 +55,17 @@ func InitPackages(jsonFilePath string, packagesMap *map[string]PackageEntry, pac
 
 //This does caching at a very basic level.  It can be done currently, because CURRENTLY, no editing is allowed for the list of all Packages
 //SO HUGE NOTE:  If any editing is eventually allowed for the package list, then it must nil out this cache after the changes.
-var packagesListJson *string
+//This is actually super WRONGLY done.  Guess what, this list changes all the time!  Its a parameter that changes.  Lets do something smart with it eh!
+//Going to change it to an md5sum or something.
+
+//var packagesListJson *string
+var packagesListJsonMap map[string]string
 
 func PackageListToJson(packagesList *[]PackageEntry) (retString string) {
-	
-	if packagesListJson == nil {
+	md5SumOfNames := getMd5SumOfNames(packagesList)
+	retString, contained := packagesListJsonMap[md5SumOfNames]
+
+	if !contained {
 		bytes, err := json.Marshal(*packagesList)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package list.\n")
@@ -65,10 +73,18 @@ func PackageListToJson(packagesList *[]PackageEntry) (retString string) {
 			os.Exit(8)
 		}
 		retString = string(bytes)
-		packagesListJson = &retString
-	} else {
-		retString = *packagesListJson
-	}
+	} 
 	
 	return 
+}
+
+func getMd5SumOfNames(packagesList *[]PackageEntry) string {
+	nameConcat := ""
+	md5Hash := md5.New()
+	for _, currPackage := range *packagesList {
+		nameConcat = nameConcat + currPackage.Name
+	}
+	
+	io.WriteString(md5Hash, nameConcat)
+	return fmt.Sprintf("%x",md5Hash.Sum(nil))
 }
