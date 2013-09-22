@@ -10,16 +10,25 @@ import (
 type PackageEntry struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
+	//This does caching at a very basic level.  It can be done currently, because CURRENTLY, no editing is allowed for a PackageEntry
+	//SO HUGE NOTE:  If any editing is eventually allowed for a PackageEntry, then it must nil out this cache after the changes.
+	jsonString *string
 }
 
-func (packageEntry PackageEntry) ToJson() string {
-	bytes, err := json.Marshal(packageEntry)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package entry.\n")
-		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
-		os.Exit(8)
+func (packageEntry *PackageEntry) ToJson() (retString string) {
+	if (*packageEntry).jsonString == nil{
+		bytes, err := json.Marshal(packageEntry)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package entry.\n")
+			fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
+			os.Exit(8)
+		}
+		retString = string(bytes)
+		(*packageEntry).jsonString = &retString
+	} else {
+		retString = *(*packageEntry).jsonString
 	}
-	return string(bytes)
+	return retString
 }
 
 func InitPackages(jsonFilePath string, packagesMap *map[string]PackageEntry, packageList *[]PackageEntry) {
@@ -42,12 +51,24 @@ func InitPackages(jsonFilePath string, packagesMap *map[string]PackageEntry, pac
 	}
 }
 
-func PackageListToJson(packagesList *[]PackageEntry) string {
-	bytes, err := json.Marshal(*packagesList)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package list.\n")
-		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
-		os.Exit(8)
+//This does caching at a very basic level.  It can be done currently, because CURRENTLY, no editing is allowed for the list of all Packages
+//SO HUGE NOTE:  If any editing is eventually allowed for the package list, then it must nil out this cache after the changes.
+var packagesListJson *string
+
+func PackageListToJson(packagesList *[]PackageEntry) (retString string) {
+	
+	if packagesListJson == nil {
+		bytes, err := json.Marshal(*packagesList)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package list.\n")
+			fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
+			os.Exit(8)
+		}
+		retString = string(bytes)
+		packagesListJson = &retString
+	} else {
+		retString = *packagesListJson
 	}
-	return string(bytes)
+	
+	return 
 }
