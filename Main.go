@@ -38,7 +38,7 @@ const bowerDefaultRepo = "http://bower.herokuapp.com/packages"
 func initFlags(serverFlag *bool, snapshotVersionFlag *string, newSnapshotFlag *bool, newSnapshotNameFlag *string, repoUrlFlag *string) {
 	//Init flag setup
 	flag.BoolVar(serverFlag, "s", false, "Run the mirrored bower server.")
-	flag.StringVar(snapshotVersionFlag, "sname", "LATEST", "OPTIONAL:Choose version of snapshot to serve.  When used, must be with the \"s\" flag as well.")
+	flag.StringVar(snapshotVersionFlag, "sname", "LATEST.json", "OPTIONAL:Choose version of snapshot to serve.  When used, must be with the \"s\" flag as well.")
 
 	flag.BoolVar(newSnapshotFlag, "n", false, "Create a new snapshot of bower.")
 	flag.StringVar(newSnapshotNameFlag, "nname", "", "OPTIONAL: Name for new snapshot to copy. When used, must be with the \"n\" flag. ")
