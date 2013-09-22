@@ -25,12 +25,6 @@ func main() {
 	} else if newSnapshotFlag {
 		snap.TakeNewSnapshot(repoUrlFlag, newSnapshotNameFlag)
 	}
-	/**
-	fmt.Println(serverFlag)
-	fmt.Println(snapshotVersionFlag)
-	fmt.Println(newSnapshotFlag)
-	fmt.Println(newSnapshotNameFlag)
-	 **/
 }
 
 const bowerDefaultRepo = "http://bower.herokuapp.com/packages"

@@ -33,7 +33,7 @@ func StartServer(snapshotVersion string) {
 	packageList = make([]model.PackageEntry, defaultPackageInitAmount)
 	initRegistry(snapshotVersion)
 	r := mux.NewRouter()
-	r.HandleFunc("/", packagesHandler)
+	//r.HandleFunc("/", packagesHandler)
 	r.HandleFunc("/packages", packagesHandler)
 	r.HandleFunc("/packages/{name}", specificPackageHandler)
 	r.HandleFunc("/packages/search/{name}", searchHandler)
