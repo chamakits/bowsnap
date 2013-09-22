@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"log"
 )
 
 /**
@@ -28,7 +27,7 @@ var packageList []model.PackageEntry
 
 const defaultPackageInitAmount = 10000
 
-func StartServer(snapshotVersion string) {
+func StartServer(snapshotVersion string, port int) {
 	packagesMap = make(map[string]model.PackageEntry, defaultPackageInitAmount)
 	packageList = make([]model.PackageEntry, defaultPackageInitAmount)
 	initRegistry(snapshotVersion)
@@ -38,7 +37,7 @@ func StartServer(snapshotVersion string) {
 	r.HandleFunc("/packages/{name}", specificPackageHandler)
 	r.HandleFunc("/packages/search/{name}", searchHandler)
 	http.Handle("/", r)
-	http.ListenAndServe(":8123",nil)
+	http.ListenAndServe(fmt.Sprintf(":%d",port),nil)
 	fmt.Println("End of StartServer")
 }
 
@@ -66,16 +65,13 @@ func packagesHandler(response http.ResponseWriter, request *http.Request) {
 func specificPackageHandler(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	packageName := vars["name"]
-	log.Printf("URL Parameter packageName=%s\n",packageName)
 	
 	packageFound, found := packagesMap[packageName]
-	log.Printf("Found package: %+v\n",packageFound)
 	
 	var jsonString string
 	if found {
 		jsonString = packageFound.ToJson()
 	}
-	log.Printf("Json string:\"%s\"\n",jsonString)
 	fmt.Fprintf(response, jsonString)
 
 }
