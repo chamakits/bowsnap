@@ -18,7 +18,7 @@ func TakeNewSnapshot(repoUrl string, newSnapshotNameFlag string) {
 	readBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR:  Could not read response from repository URL at \"%s\".\n", repoUrl)
-		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:%v\n", err)
+		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
 		os.Exit(3)
 	}
 	//fmt.Println(string(readBytes))
