@@ -7,6 +7,7 @@ import (
 	"os"
 	"io"
 	"crypto/md5"
+//	"log"
 )
 
 type PackageEntry struct {
@@ -15,6 +16,10 @@ type PackageEntry struct {
 	//This does caching at a very basic level.  It can be done currently, because CURRENTLY, no editing is allowed for a PackageEntry
 	//SO HUGE NOTE:  If any editing is eventually allowed for a PackageEntry, then it must nil out this cache after the changes.
 	jsonString *string
+}
+
+func init() {
+	packagesMd5ToJsonMap = make(map[string]string,0)
 }
 
 func (packageEntry *PackageEntry) ToJson() (retString string) {
@@ -59,12 +64,12 @@ func InitPackages(jsonFilePath string, packagesMap *map[string]PackageEntry, pac
 //Going to change it to an md5sum or something.
 
 //var packagesListJson *string
-var packagesListJsonMap map[string]string
+var packagesMd5ToJsonMap map[string]string
 
-func PackageListToJson(packagesList *[]PackageEntry) (retString string) {
-	md5SumOfNames := getMd5SumOfNames(packagesList)
-	retString, contained := packagesListJsonMap[md5SumOfNames]
+func PackageListToJson(packagesList *[]PackageEntry, md5SumOfNames string) (retString string) {
 
+	retString, contained := packagesMd5ToJsonMap[md5SumOfNames]
+	
 	if !contained {
 		bytes, err := json.Marshal(*packagesList)
 		if err != nil {
@@ -72,13 +77,16 @@ func PackageListToJson(packagesList *[]PackageEntry) (retString string) {
 			fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
 			os.Exit(8)
 		}
+		//log.Printf("retString:%s, map:%v, md5SumOfNames:%s\n", retString, packagesMd5ToJsonMap, md5SumOfNames)
 		retString = string(bytes)
+		//log.Printf("retString:%s, map:%v, md5SumOfNames:%s\n", retString, packagesMd5ToJsonMap, md5SumOfNames)
+		packagesMd5ToJsonMap[md5SumOfNames] = retString
 	} 
 	
 	return 
 }
 
-func getMd5SumOfNames(packagesList *[]PackageEntry) string {
+func GetMd5SumOfNames(packagesList *[]PackageEntry) string {
 	nameConcat := ""
 	md5Hash := md5.New()
 	for _, currPackage := range *packagesList {

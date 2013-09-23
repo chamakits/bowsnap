@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"io"
+	"crypto/md5"
 //	"log"
 )
 
@@ -60,8 +62,14 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(response, "Hi there, I love %s!", request.URL.Path[1:])
 }
 
+var md5SumOfAllPackageNames *string
 func packagesHandler(response http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList))
+	if md5SumOfAllPackageNames == nil {
+		md5SumString := model.GetMd5SumOfNames(&packageList)
+		md5SumOfAllPackageNames = &md5SumString
+	}
+	
+	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList, *md5SumOfAllPackageNames))
 }
 
 func specificPackageHandler(response http.ResponseWriter, request *http.Request) {
@@ -82,15 +90,24 @@ func searchHandler(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	lookup := vars["name"]
 	//log.Printf("SearchHandler, name:%s\n", lookup)
-
+	namesString := ""
   	foundPackages := make([]model.PackageEntry, 0)
 	for _, currPackage := range packageList {
 //		log.Printf("Lookup:%s; currPackage:%v\n",lookup, currPackage)
 //		log.Printf("Currpackage.Name:\"%s\", Lookup:\"%s\", contains:\"%v\"\n", currPackage.Name, lookup, strings.Contains(currPackage.Name, lookup))
 		if strings.Contains(currPackage.Name, lookup) {
 			foundPackages = append(foundPackages, currPackage)
+			namesString = namesString + currPackage.Name
 		}
 	}
 //	log.Printf("Found size:%s\n", len(foundPackages))
-	fmt.Fprintf(response, model.PackageListToJson(&foundPackages))
+	fmt.Fprintf(response, model.PackageListToJson(&foundPackages, md5SumOfString(namesString)), )
+}
+
+func md5SumOfString(str string) string {
+	md5Hash := md5.New()
+	io.WriteString(md5Hash, str)
+	return fmt.Sprintf("%x",md5Hash.Sum(nil))
+
+
 }
