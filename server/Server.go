@@ -7,9 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"io"
-	"crypto/md5"
-//	"log"
 )
 
 /**
@@ -62,14 +59,18 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(response, "Hi there, I love %s!", request.URL.Path[1:])
 }
 
-var md5SumOfAllPackageNames *string
+var allPackageKey *string
 func packagesHandler(response http.ResponseWriter, request *http.Request) {
-	if md5SumOfAllPackageNames == nil {
-		md5SumString := model.GetMd5SumOfNames(&packageList)
-		md5SumOfAllPackageNames = &md5SumString
+	if allPackageKey == nil {
+		namesKey := getPackagePath(request)
+		allPackageKey = &namesKey
 	}
 	
-	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList, *md5SumOfAllPackageNames))
+	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList, *allPackageKey))
+}
+
+func getPackagePath(request *http.Request) string {
+	return request.URL.Path
 }
 
 func specificPackageHandler(response http.ResponseWriter, request *http.Request) {
@@ -101,13 +102,5 @@ func searchHandler(response http.ResponseWriter, request *http.Request) {
 		}
 	}
 //	log.Printf("Found size:%s\n", len(foundPackages))
-	fmt.Fprintf(response, model.PackageListToJson(&foundPackages, md5SumOfString(namesString)), )
-}
-
-func md5SumOfString(str string) string {
-	md5Hash := md5.New()
-	io.WriteString(md5Hash, str)
-	return fmt.Sprintf("%x",md5Hash.Sum(nil))
-
-
+	fmt.Fprintf(response, model.PackageListToJson(&foundPackages, getPackagePath(request)) )
 }

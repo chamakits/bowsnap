@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"io"
-	"crypto/md5"
-//	"log"
 )
 
 type PackageEntry struct {
@@ -19,7 +16,7 @@ type PackageEntry struct {
 }
 
 func init() {
-	packagesMd5ToJsonMap = make(map[string]string,0)
+	packagesKeyToJsonMap = make(map[string]string,0)
 }
 
 func (packageEntry *PackageEntry) ToJson() (retString string) {
@@ -62,13 +59,14 @@ func InitPackages(jsonFilePath string, packagesMap *map[string]PackageEntry, pac
 //SO HUGE NOTE:  If any editing is eventually allowed for the package list, then it must nil out this cache after the changes.
 //This is actually super WRONGLY done.  Guess what, this list changes all the time!  Its a parameter that changes.  Lets do something smart with it eh!
 //Going to change it to an md5sum or something.
+//Update again, actually changed it to just the path of the query
 
 //var packagesListJson *string
-var packagesMd5ToJsonMap map[string]string
+var packagesKeyToJsonMap map[string]string
 
-func PackageListToJson(packagesList *[]PackageEntry, md5SumOfNames string) (retString string) {
+func PackageListToJson(packagesList *[]PackageEntry, mapKey string) (retString string) {
 
-	retString, contained := packagesMd5ToJsonMap[md5SumOfNames]
+	retString, contained := packagesKeyToJsonMap[mapKey]
 	
 	if !contained {
 		bytes, err := json.Marshal(*packagesList)
@@ -77,22 +75,9 @@ func PackageListToJson(packagesList *[]PackageEntry, md5SumOfNames string) (retS
 			fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
 			os.Exit(8)
 		}
-		//log.Printf("retString:%s, map:%v, md5SumOfNames:%s\n", retString, packagesMd5ToJsonMap, md5SumOfNames)
 		retString = string(bytes)
-		//log.Printf("retString:%s, map:%v, md5SumOfNames:%s\n", retString, packagesMd5ToJsonMap, md5SumOfNames)
-		packagesMd5ToJsonMap[md5SumOfNames] = retString
+		packagesKeyToJsonMap[mapKey] = retString
 	} 
 	
 	return 
-}
-
-func GetMd5SumOfNames(packagesList *[]PackageEntry) string {
-	nameConcat := ""
-	md5Hash := md5.New()
-	for _, currPackage := range *packagesList {
-		nameConcat = nameConcat + currPackage.Name
-	}
-	
-	io.WriteString(md5Hash, nameConcat)
-	return fmt.Sprintf("%x",md5Hash.Sum(nil))
 }
