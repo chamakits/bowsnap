@@ -16,11 +16,11 @@ type PackageEntry struct {
 }
 
 func init() {
-	packagesKeyToJsonMap = make(map[string]string,0)
+	packagesKeyToJsonMap = make(map[string]string, 0)
 }
 
 func (packageEntry *PackageEntry) ToJson() (retString string) {
-	if (*packageEntry).jsonString == nil{
+	if (*packageEntry).jsonString == nil {
 		bytes, err := json.Marshal(packageEntry)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package entry.\n")
@@ -67,7 +67,7 @@ var packagesKeyToJsonMap map[string]string
 func PackageListToJson(packagesList *[]PackageEntry, mapKey string) (retString string) {
 
 	retString, contained := packagesKeyToJsonMap[mapKey]
-	
+
 	if !contained {
 		bytes, err := json.Marshal(*packagesList)
 		if err != nil {
@@ -77,7 +77,7 @@ func PackageListToJson(packagesList *[]PackageEntry, mapKey string) (retString s
 		}
 		retString = string(bytes)
 		packagesKeyToJsonMap[mapKey] = retString
-	} 
-	
-	return 
+	}
+
+	return
 }

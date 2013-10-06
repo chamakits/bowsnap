@@ -2,19 +2,15 @@ package snap
 
 import (
 	"fmt"
+	"github.com/chamakits/bowsnap/bower"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path"
 )
 
 func TakeNewSnapshot(repoUrl string, newSnapshotNameFlag string) {
-	resp, err := http.Get(repoUrl)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR:  Could not reach bower repository URL at \"%s\".\n", repoUrl)
-		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:%v\n", err)
-		os.Exit(2)
-	}
+	resp := bower.GetPackageList(repoUrl)
+
 	readBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR:  Could not read response from repository URL at \"%s\".\n", repoUrl)

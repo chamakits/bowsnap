@@ -10,17 +10,17 @@ import (
 )
 
 /**
- Basing it on: https://github.com/bower/registry/
- URLs:
- get '/packages' do
- get '/packages/:name' do
- get '/packages/search/:name' do
- post '/packages' do
- Package.create(
- :name => params[:name],
- :url  => params[:url]
- )
- **/
+Basing it on: https://github.com/bower/registry/
+URLs:
+get '/packages' do
+get '/packages/:name' do
+get '/packages/search/:name' do
+post '/packages' do
+Package.create(
+:name => params[:name],
+:url  => params[:url]
+)
+**/
 
 var packagesMap map[string]model.PackageEntry
 var packageList []model.PackageEntry
@@ -38,7 +38,7 @@ func StartServer(snapshotVersion string, port int) {
 	r.HandleFunc("/packages/{name}", specificPackageHandler)
 	r.HandleFunc("/packages/search/{name}", searchHandler)
 	http.Handle("/", r)
-	http.ListenAndServe(fmt.Sprintf(":%d",port),nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	fmt.Println("End of StartServer")
 }
 
@@ -60,12 +60,13 @@ func handler(response http.ResponseWriter, request *http.Request) {
 }
 
 var allPackageKey *string
+
 func packagesHandler(response http.ResponseWriter, request *http.Request) {
 	if allPackageKey == nil {
 		namesKey := getPackagePath(request)
 		allPackageKey = &namesKey
 	}
-	
+
 	fmt.Fprintf(response, "%v", model.PackageListToJson(&packageList, *allPackageKey))
 }
 
@@ -76,9 +77,9 @@ func getPackagePath(request *http.Request) string {
 func specificPackageHandler(response http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	packageName := vars["name"]
-	
+
 	packageFound, found := packagesMap[packageName]
-	
+
 	var jsonString string
 	if found {
 		jsonString = packageFound.ToJson()
@@ -92,15 +93,15 @@ func searchHandler(response http.ResponseWriter, request *http.Request) {
 	lookup := vars["name"]
 	//log.Printf("SearchHandler, name:%s\n", lookup)
 	namesString := ""
-  	foundPackages := make([]model.PackageEntry, 0)
+	foundPackages := make([]model.PackageEntry, 0)
 	for _, currPackage := range packageList {
-//		log.Printf("Lookup:%s; currPackage:%v\n",lookup, currPackage)
-//		log.Printf("Currpackage.Name:\"%s\", Lookup:\"%s\", contains:\"%v\"\n", currPackage.Name, lookup, strings.Contains(currPackage.Name, lookup))
+		//		log.Printf("Lookup:%s; currPackage:%v\n",lookup, currPackage)
+		//		log.Printf("Currpackage.Name:\"%s\", Lookup:\"%s\", contains:\"%v\"\n", currPackage.Name, lookup, strings.Contains(currPackage.Name, lookup))
 		if strings.Contains(currPackage.Name, lookup) {
 			foundPackages = append(foundPackages, currPackage)
 			namesString = namesString + currPackage.Name
 		}
 	}
-//	log.Printf("Found size:%s\n", len(foundPackages))
-	fmt.Fprintf(response, model.PackageListToJson(&foundPackages, getPackagePath(request)) )
+	//	log.Printf("Found size:%s\n", len(foundPackages))
+	fmt.Fprintf(response, model.PackageListToJson(&foundPackages, getPackagePath(request)))
 }

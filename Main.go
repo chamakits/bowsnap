@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/chamakits/bowsnap/snap"
+	"github.com/chamakits/bowsnap/git"
 	"github.com/chamakits/bowsnap/server"
+	"github.com/chamakits/bowsnap/snap"
+	"log"
 	"os"
 	"time"
 )
@@ -16,12 +18,14 @@ func main() {
 		newSnapshotFlag     bool
 		newSnapshotNameFlag string
 		repoUrlFlag         string
-		portFlag int
+		portFlag            int
 	)
+	git.CanFindGit()
 
 	initFlags(&serverFlag, &snapshotVersionFlag, &portFlag, &newSnapshotFlag, &newSnapshotNameFlag, &repoUrlFlag)
 
 	if serverFlag {
+		log.Printf("Starting server on port:%d\n", portFlag)
 		server.StartServer(snapshotVersionFlag, portFlag)
 	} else if newSnapshotFlag {
 		snap.TakeNewSnapshot(repoUrlFlag, newSnapshotNameFlag)
@@ -39,8 +43,6 @@ func initFlags(serverFlag *bool, snapshotVersionFlag *string, portFlag *int, new
 	flag.BoolVar(newSnapshotFlag, "n", false, "Create a new snapshot of bower.")
 	flag.StringVar(newSnapshotNameFlag, "nname", "", "OPTIONAL: Name for new snapshot to copy. When used, must be with the \"n\" flag. ")
 	flag.StringVar(repoUrlFlag, "repo", "", "OPTIONAL: Url of the bower repo to take snapshot from. When used, must be with the \"n\" flag. ")
-	
-	
 
 	flag.Parse()
 
