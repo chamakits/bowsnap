@@ -23,7 +23,7 @@ func (packageEntry *PackageEntry) ToJson() (retString string) {
 	if (*packageEntry).jsonString == nil {
 		bytes, err := json.Marshal(packageEntry)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR:  Unable to unmarshall the package entry.\n")
+			fmt.Fprintf(os.Stderr, "ERROR:  Unable to marshall the package entry.\n")
 			fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:  %v\n", err)
 			os.Exit(8)
 		}

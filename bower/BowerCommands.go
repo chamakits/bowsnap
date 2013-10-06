@@ -2,8 +2,11 @@ package bower
 
 import (
 	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"github.com/chamakits/bowsnap/model"
 )
 
 func GetPackageList(registryUrl string) (resp *http.Response) {
@@ -16,6 +19,21 @@ func GetPackageList(registryUrl string) (resp *http.Response) {
 	return
 }
 
-func GetPackageRepo(packageName string) {
+func GetPackageRepo(registryUrl, packageName string) string {
+	resp, err := http.Get(fmt.Sprintf("%s/%s",registryUrl, packageName))
 
+	var pack model.PackageEntry
+	readBytes, err := ioutil.ReadAll(resp.Body)
+
+	err = json.Unmarshal(readBytes, pack)
+	if err != nil {
+		fmt.Fprintf(os.Stderr,"ERROR: Could not unmarshall json.\n")
+		fmt.Fprintf(os.Stderr,"ERROR:%v\n",err)
+	}
+
+	return pack.Url
+}
+ 
+func GetPackageVersion(packageName string) {
+	//Read bower.json to get version.
 }

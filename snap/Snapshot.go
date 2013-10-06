@@ -3,6 +3,7 @@ package snap
 import (
 	"fmt"
 	"github.com/chamakits/bowsnap/bower"
+	"github.com/chamakits/bowsnap/util"
 	"io/ioutil"
 	"os"
 	"path"
@@ -18,21 +19,12 @@ func TakeNewSnapshot(repoUrl string, newSnapshotNameFlag string) {
 		os.Exit(3)
 	}
 	//fmt.Println(string(readBytes))
-	currentWorkingDirectory := getCWD()
+	currentWorkingDirectory := util.GetCWD()
 	writeFile(&readBytes, currentWorkingDirectory, newSnapshotNameFlag)
 	createLatestSymlink(currentWorkingDirectory, newSnapshotNameFlag)
 
 }
 
-func getCWD() string {
-	currentWorkingDirectory, err := os.Getwd()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR:  Could not get working directory.\n")
-		fmt.Fprintf(os.Stderr, "ERROR-MESSAGE:%v\n", err)
-		os.Exit(4)
-	}
-	return currentWorkingDirectory
-}
 
 func writeFile(readBytes *[]byte, currentWorkingDirectory string, newFileName string) {
 	snapshotFilePath := path.Join(currentWorkingDirectory, newFileName)
