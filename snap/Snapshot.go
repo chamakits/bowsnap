@@ -25,7 +25,6 @@ func TakeNewSnapshot(repoUrl string, newSnapshotNameFlag string) {
 
 }
 
-
 func writeFile(readBytes *[]byte, currentWorkingDirectory string, newFileName string) {
 	snapshotFilePath := path.Join(currentWorkingDirectory, newFileName)
 	ioutil.WriteFile(snapshotFilePath, *readBytes, 0644)

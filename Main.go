@@ -22,6 +22,7 @@ func main() {
 	)
 	git.CanFindGit()
 	//git.CloneGit("git://github.com/components/jquery.git","packages/jquery")
+	git.CloneAllGit("git://github.com/components/jquery.git","packages/jquery")
 	initFlags(&serverFlag, &snapshotVersionFlag, &portFlag, &newSnapshotFlag, &newSnapshotNameFlag, &repoUrlFlag)
 
 	if serverFlag {
