@@ -24,34 +24,32 @@ func CanFindGit() (bool, error) {
 	return true, nil
 }
 
-func CloneAllGit(uri, newPath string) {
+func CloneAllGit(uri, rootPackagePath string) {
 
 	//Get directory names.
 	newCloneDir := GetGitDirectoryName(uri)
-	projectPath := path.Join(newPath, newCloneDir) 
+	projectPath := path.Join(rootPackagePath, newCloneDir) 
 
 	//First clone the first one
-	CloneGit(uri, newPath)
+	CloneGit(uri, rootPackagePath)
 
-	
 	//Read the bower.json
-
 	bow := bower.GetBower(projectPath)
-	fmt.Printf("%v\n",bow)
+	ChangeToVersion(rootPackagePath, projectPath, newCloneDir, bow)
 
-	//Get the version from there & Rename according to version there
-	renamedDir := fmt.Sprintf("%s-%s",newCloneDir,bow.Version)
-	renamedPath := path.Join(newPath, renamedDir)
-	util.RenameIfExists(renamedPath)
-	os.Rename(projectPath,renamedPath)
-	ChangeToTag(renamedPath, bow.Version)
 	
 	//Get the rest of dev dependencies
 }
 
-func CloneAndToTag(uri, gitPath, tag string) {
-	CloneGit(uri, gitPath)
-	ChangeToTag(gitPath, tag)
+func ChangeToVersion(rootPackagePath, projectPath, newCloneDir string, bow bower.Bower) {
+	//fmt.Printf("%v\n",bow)
+
+	//Get the version from there & Rename according to version there
+	renamedDir := fmt.Sprintf("%s-%s",newCloneDir,bow.Version)
+	renamedPath := path.Join(rootPackagePath, renamedDir)
+	util.RenameIfExists(renamedPath)
+	os.Rename(projectPath,renamedPath)
+	ChangeToTag(renamedPath, bow.Version)	
 }
 
 func CloneGit(uri, path string) {
