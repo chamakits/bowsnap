@@ -25,19 +25,26 @@ func CanFindGit() (bool, error) {
 }
 
 func CloneAllGit(uri, newPath string) {
-	//First clone the first one
-	CloneAndToTag(uri, newPath)
+
+	//Get directory names.
 	newCloneDir := GetGitDirectoryName(uri)
+	projectPath := path.Join(newPath, newCloneDir) 
+
+	//First clone the first one
+	CloneGit(uri, newPath)
+
 	
 	//Read the bower.json
-	projectPath := path.Join(newPath, newCloneDir)
+
 	bow := bower.GetBower(projectPath)
 	fmt.Printf("%v\n",bow)
 
 	//Get the version from there & Rename according to version there
 	renamedDir := fmt.Sprintf("%s-%s",newCloneDir,bow.Version)
 	renamedPath := path.Join(newPath, renamedDir)
+	util.RenameIfExists(renamedPath)
 	os.Rename(projectPath,renamedPath)
+	ChangeToTag(renamedPath, bow.Version)
 	
 	//Get the rest of dev dependencies
 }

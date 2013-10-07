@@ -6,9 +6,9 @@ import (
 	"github.com/chamakits/bowsnap/git"
 	"github.com/chamakits/bowsnap/server"
 	"github.com/chamakits/bowsnap/snap"
+	"github.com/chamakits/bowsnap/util"
 	"log"
 	"os"
-	"time"
 )
 
 func main() {
@@ -67,9 +67,8 @@ func initFlags(serverFlag *bool, snapshotVersionFlag *string, portFlag *int, new
 
 }
 
-const timeLayout = "Jan-02-2006_15-04-05-MST"
-
 func getDefSnapshotName() string {
-	now := time.Now()
-	return "BowerSnapshot_" + now.Format(timeLayout) + ".json"
+	return "BowerSnapshot_" + util.GetTimeStamp() + ".json"
 }
+
+
